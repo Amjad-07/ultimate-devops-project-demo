@@ -3,25 +3,66 @@ mode: daemonset
 image:
   repository: otel/opentelemetry-collector-contrib
 
-config:
+ports:
+  otlp:
+    hostPort: null
 
+  otlp-http:
+    hostPort: null
+
+  jaeger-compact:
+    enabled: false
+
+  jaeger-thrift:
+    enabled: false
+
+  jaeger-grpc:
+    enabled: false
+
+  zipkin:
+    enabled: false
+
+config:
   receivers:
+    jaeger: null
+    zipkin: null
+    prometheus: null
+
     otlp:
       protocols:
         grpc:
-          endpoint: 0.0.0.0:4317
+          endpoint: ${env:MY_POD_IP}:4317
         http:
-          endpoint: 0.0.0.0:4318
+          endpoint: ${env:MY_POD_IP}:4318
 
   processors:
+    memory_limiter: {}
+
     batch: {}
 
   exporters:
     debug: {}
 
+  extensions:
+    health_check:
+      endpoint: ${env:MY_POD_IP}:13133
+
   service:
+    extensions:
+      - health_check
+
     pipelines:
       logs:
-        receivers: [otlp]
-        processors: [batch]
-        exporters: [debug]
+        receivers:
+          - otlp
+
+        processors:
+          - memory_limiter
+          - batch
+
+        exporters:
+          - debug
+
+      metrics: null
+
+      traces: null
