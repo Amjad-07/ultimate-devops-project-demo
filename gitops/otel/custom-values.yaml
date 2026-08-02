@@ -1,0 +1,8 @@
+# =============================================================================
+# OpenTelemetry Demo
+#
+# Custom Helm overrides
+#
+# This file contains ONLY the changes we make.
+# We never edit the official Helm chart.
+# =============================================================================
