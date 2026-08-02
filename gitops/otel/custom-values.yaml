@@ -1,26 +1,27 @@
-receivers:
-  otlp:
-    protocols:
-      grpc:
-        endpoint: 0.0.0.0:4317
+mode: daemonset
 
-      http:
-        endpoint: 0.0.0.0:4318
+image:
+  repository: otel/opentelemetry-collector-contrib
 
-processors:
-  batch:
+config:
 
-exporters:
-  debug:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
 
-service:
-  pipelines:
-    logs:
-      receivers:
-        - otlp
+  processors:
+    batch: {}
 
-      processors:
-        - batch
+  exporters:
+    debug: {}
 
-      exporters:
-        - debug
+  service:
+    pipelines:
+      logs:
+        receivers: [otlp]
+        processors: [batch]
+        exporters: [debug]
