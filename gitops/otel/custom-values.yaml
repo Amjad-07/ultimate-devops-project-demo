@@ -47,23 +47,23 @@ config:
     health_check:
       endpoint: ${env:MY_POD_IP}:13133
 
-service:
-  extensions:
-    - health_check
+  service:
+    extensions:
+      - health_check
 
-  pipelines:
+    pipelines:
 
-    logs:
-      receivers: [otlp]
-      processors: [memory_limiter, batch]
-      exporters: [debug]
+      logs:
+        receivers: [otlp]
+        processors: [memory_limiter, batch]
+        exporters: [debug]
 
-    traces:
-      receivers: [otlp]
-      processors: [memory_limiter, batch]
-      exporters: [debug]
+      traces:
+        receivers: [otlp]
+        processors: [memory_limiter, batch]
+        exporters: [debug]
 
-    metrics:
-      receivers: [otlp]
-      processors: [memory_limiter, batch]
-      exporters: [debug]
+      metrics:
+        receivers: [otlp]
+        processors: [memory_limiter, batch]
+        exporters: [debug]
