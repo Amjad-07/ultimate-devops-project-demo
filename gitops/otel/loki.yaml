@@ -1,5 +1,7 @@
 # -----------------------------------------------------------------------------
 # Loki - Learning Configuration (Single Node GKE)
+# Chart Version: 6.7.4
+# Loki Version : 3.1.0
 # -----------------------------------------------------------------------------
 
 loki:
@@ -26,7 +28,7 @@ loki:
     delete_request_store: filesystem
 
   limits_config:
-    retention_period: 168h          # 7 days
+    retention_period: 168h
 
     ingestion_rate_mb: 8
     ingestion_burst_size_mb: 16
@@ -35,6 +37,27 @@ loki:
     max_query_length: 168h
     split_queries_by_interval: 6h
     max_concurrent_tail_requests: 5
+
+    # ---------------------------------------------------------
+    # OTLP Resource Attribute Mapping
+    # ---------------------------------------------------------
+    otlp_config:
+      resource_attributes:
+        attributes_config:
+
+          # Indexed labels (Fast LogQL filtering)
+          - action: index_label
+            attributes:
+              - service.name
+              - k8s.namespace.name
+              - k8s.deployment.name
+
+          # Stored with every log (Not Indexed)
+          - action: structured_metadata
+            attributes:
+              - k8s.pod.name
+              - k8s.node.name
+              - k8s.pod.uid
 
 deploymentMode: SingleBinary
 
@@ -45,7 +68,6 @@ singleBinary:
     requests:
       cpu: 50m
       memory: 256Mi
-
     limits:
       cpu: 200m
       memory: 512Mi
@@ -69,7 +91,7 @@ write:
   replicas: 0
 
 # -----------------------------------------------------------------------------
-# Disable Cache (saves CPU & Memory)
+# Disable Memcached
 # -----------------------------------------------------------------------------
 
 chunksCache:
@@ -86,25 +108,24 @@ gateway:
   enabled: false
 
 # -----------------------------------------------------------------------------
-# Disable Loki Canary
+# Disable Canary
 # -----------------------------------------------------------------------------
 
 lokiCanary:
   enabled: false
 
 # -----------------------------------------------------------------------------
-# Disable Self Monitoring
+# Disable Monitoring
 # -----------------------------------------------------------------------------
 
 monitoring:
   selfMonitoring:
     enabled: false
-
     grafanaAgent:
       installOperator: false
 
 # -----------------------------------------------------------------------------
-# Disable Helm Test Pod
+# Disable Test Pod
 # -----------------------------------------------------------------------------
 
 test:
