@@ -178,12 +178,12 @@ alternateConfig:
           - k8s.replicaset.name
           - k8s.pod.uid
 
-  transform/service_name:
-    error_mode: ignore
-    log_statements:
-      - context: resource
-        statements:
-          - set(attributes["service.name"], attributes["k8s.deployment.name"])
+  # transform/service_name:
+  #   error_mode: ignore
+  #   log_statements:
+  #     - context: resource
+  #       statements:
+  #         - set(attributes["service.name"], attributes["k8s.deployment.name"])
 
     ####################################################
     # Remove Health Checks
