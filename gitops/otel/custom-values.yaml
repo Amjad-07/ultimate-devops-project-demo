@@ -192,6 +192,8 @@ alternateConfig:
     batch: {}
 
   exporters:
+    debug:
+      verbosity: detailed
     otlphttp/loki:
       endpoint: http://loki.observability.svc.cluster.local:3100/otlp
       tls:
@@ -214,4 +216,5 @@ alternateConfig:
           - batch
 
         exporters:
+          - debug
           - otlphttp/loki
