@@ -220,7 +220,6 @@ alternateConfig:
 
         processors:
           - k8sattributes
-          - transform/service_name
           - filter/health_logs
           - batch
 
