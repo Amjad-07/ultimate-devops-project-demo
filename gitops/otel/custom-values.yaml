@@ -54,6 +54,13 @@ resources:
     cpu: 300m
     memory: 256Mi
 
+ports:
+  prom:
+    enabled: true
+    containerPort: 8889
+    servicePort: 8889
+    protocol: TCP
+
 extraVolumes:
   - name: varlogpods
     hostPath:
@@ -97,6 +104,19 @@ alternateConfig:
       storage: file_storage
 
       include_file_path: true
+      
+    hostmetrics:
+      collection_interval: 30s
+
+      scrapers:
+        cpu: {}
+        memory: {}
+        disk: {}
+        filesystem: {}
+        network: {}
+        load: {}
+        paging: {}
+        process: {}
 
       operators:
 
@@ -206,6 +226,8 @@ alternateConfig:
       endpoint: http://loki.observability.svc.cluster.local:3100/otlp
       tls:
         insecure : true
+    prometheus:
+      endpoint: 0.0.0.0:8889
 
   service:
 
@@ -226,3 +248,14 @@ alternateConfig:
         exporters:
           - debug
           - otlphttp/loki
+
+      metrics:
+        receivers:
+          - hostmetrics
+
+        processors:
+          - batch
+
+        exporters:
+          - debug
+          - prometheus
