@@ -1,5 +1,5 @@
 grafana:
-  enabled: true
+  enabled: false
 
 alertmanager:
   enabled: false
@@ -20,7 +20,7 @@ prometheus:
   enabled: true
 
   prometheusSpec:
-  
+
     additionalScrapeConfigs:
       - job_name: "otel-hostmetrics"
 
@@ -28,22 +28,25 @@ prometheus:
 
         kubernetes_sd_configs:
           - role: pod
-
             namespaces:
               names:
                 - observability
 
         relabel_configs:
-
-          # Keep only our OTEL Service
-          - source_labels: [__meta_kubernetes_service_name]
-            regex: 'otel-collector-filelog-opentelemetry-collector-agent.*'
+          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_instance]
+            regex: otel-collector-filelog
             action: keep
 
-          # Keep only port 8889
-          - source_labels: [__meta_kubernetes_endpoint_port_number]
+          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+            regex: opentelemetry-collector
+            action: keep
+
+          - source_labels: [__meta_kubernetes_pod_container_port_number]
             regex: "8889"
             action: keep
+
+          - source_labels: [__address__]
+            target_label: __address__
 
     retention: 7d
 
@@ -60,4 +63,3 @@ prometheus:
           resources:
             requests:
               storage: 5Gi
-  
