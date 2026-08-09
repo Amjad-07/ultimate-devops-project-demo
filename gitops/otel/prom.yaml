@@ -22,6 +22,15 @@ prometheus:
   service:
     type: LoadBalancer
 
+  additionalRulesForClusterRole:
+    - apiGroups: [""]
+      resources:
+        - nodes/proxy
+      verbs:
+        - get
+        - list
+        - watch
+
   prometheusSpec:
 
     retention: 7d
@@ -43,7 +52,7 @@ prometheus:
     additionalScrapeConfigs:
 
       ############################################################
-      # OTEL Host Metrics (Already Working)
+      # OTEL Host Metrics
       ############################################################
 
       - job_name: "otel-hostmetrics"
@@ -78,7 +87,7 @@ prometheus:
             target_label: __address__
 
       ############################################################
-      # Kubernetes cAdvisor (Container Metrics)
+      # Kubernetes cAdvisor
       ############################################################
 
       - job_name: "kubernetes-cadvisor"
