@@ -1,0 +1,63 @@
+grafana:
+  enabled: true
+
+alertmanager:
+  enabled: false
+
+kubeStateMetrics:
+  enabled: false
+
+nodeExporter:
+  enabled: false
+
+defaultRules:
+  create: false
+
+prometheusOperator:
+  enabled: true
+
+prometheus:
+  enabled: true
+
+  prometheusSpec:
+  
+    additionalScrapeConfigs:
+      - job_name: "otel-hostmetrics"
+
+        metrics_path: /metrics
+
+        kubernetes_sd_configs:
+          - role: pod
+
+            namespaces:
+              names:
+                - observability
+
+        relabel_configs:
+
+          # Keep only our OTEL Service
+          - source_labels: [__meta_kubernetes_service_name]
+            regex: 'otel-collector-filelog-opentelemetry-collector-agent.*'
+            action: keep
+
+          # Keep only port 8889
+          - source_labels: [__meta_kubernetes_endpoint_port_number]
+            regex: "8889"
+            action: keep
+
+    retention: 7d
+
+    scrapeInterval: 15s
+
+    evaluationInterval: 15s
+
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: standard-rwo
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 5Gi
+  
