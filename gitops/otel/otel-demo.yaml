@@ -1,23 +1,58 @@
+# ── App deployment: left completely idle ──
+# No `components:` key — opentelemetry-demo's own defaults deploy all 25
+# microservices untouched.
+
+# ── Disable the demo's other 4 bundled backends (you run your own stack) ──
 jaeger:
   enabled: false
-
 prometheus:
   enabled: false
-
 grafana:
   enabled: false
-
 opensearch:
   enabled: false
 
+# ── Collector: fully owned from scratch via alternateConfig ──
 opentelemetry-collector:
-  config:
+  mode: daemonset
+
+  presets:
+    hostMetrics:
+      enabled: false
+    kubernetesAttributes:
+      enabled: false
+    kubeletMetrics:
+      enabled: false
+    clusterMetrics:
+      enabled: false
+    annotationDiscovery:
+      metrics:
+        enabled: false
+      logs:
+        enabled: false
+    logsCollection:
+      enabled: false
+
+  command:
+    extraArgs: []
+
+  alternateConfig:
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: ${env:MY_POD_IP}:4317
+          http:
+            endpoint: ${env:MY_POD_IP}:4318
+
+    processors:
+      batch: {}
+
     exporters:
       debug:
         verbosity: detailed
         sampling_initial: 5
         sampling_thereafter: 200
-
       otlp/tempo:
         endpoint: tempo.observability.svc.cluster.local:4317
         tls:
@@ -31,11 +66,26 @@ opentelemetry-collector:
         tls:
           insecure: true
 
+    extensions:
+      health_check:
+        endpoint: ${env:MY_POD_IP}:13133
+
     service:
+      extensions: [health_check]
       pipelines:
         traces:
-          exporters: [otlp/tempo, debug, span_metrics]
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [otlp/tempo, debug]
         metrics:
+          receivers: [otlp]
+          processors: [batch]
           exporters: [otlphttp/prometheus, debug]
         logs:
+          receivers: [otlp]
+          processors: [batch]
           exporters: [otlphttp/loki, debug]
+
+# ── eBPF profiler sub-chart: also disabled by demo default, keep it off ──
+otel-ebpf-profiler:
+  enabled: false
