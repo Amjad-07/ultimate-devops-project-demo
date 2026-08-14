@@ -13,6 +13,11 @@ opensearch:
 opentelemetry-collector:
   config:
     exporters:
+      debug:
+        verbosity: detailed
+        sampling_initial: 5
+        sampling_thereafter: 200
+
       otlp/tempo:
         endpoint: tempo.observability.svc.cluster.local:4317
         tls:
