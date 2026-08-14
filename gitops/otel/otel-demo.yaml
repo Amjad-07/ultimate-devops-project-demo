@@ -1,0 +1,36 @@
+jaeger:
+  enabled: false
+
+prometheus:
+  enabled: false
+
+grafana:
+  enabled: false
+
+opensearch:
+  enabled: false
+
+opentelemetry-collector:
+  config:
+    exporters:
+      otlp/tempo:
+        endpoint: tempo.observability.svc.cluster.local:4317
+        tls:
+          insecure: true
+      otlphttp/prometheus:
+        endpoint: http://prometheus-server.observability.svc.cluster.local/api/v1/otlp
+        tls:
+          insecure: true
+      otlphttp/loki:
+        endpoint: http://loki-gateway.observability.svc.cluster.local/otlp
+        tls:
+          insecure: true
+
+    service:
+      pipelines:
+        traces:
+          exporters: [otlp/tempo, debug, span_metrics]
+        metrics:
+          exporters: [otlphttp/prometheus, debug]
+        logs:
+          exporters: [otlphttp/loki, debug]
