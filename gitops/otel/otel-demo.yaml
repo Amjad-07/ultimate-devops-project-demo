@@ -203,6 +203,13 @@ opentelemetry-collector:
             - k8s.deployment.name
             - k8s.replicaset.name
             - k8s.pod.uid
+            
+      transform/add_kubernetes_service_name:
+          log_statements:
+            - context: resource
+              statements:
+                - set(attributes["kubernetes_service_name"], attributes["k8s.container.name"])
+
       batch: {}
 
     exporters:
@@ -242,7 +249,7 @@ opentelemetry-collector:
           exporters: [otlphttp/prometheus, debug]
         logs:
           receivers: [otlp, filelog]
-          processors: [k8sattributes, batch]
+          processors: [k8sattributes, transform/add_kubernetes_service_name, batch]
           exporters: [otlphttp/loki, debug]
 
 # ── eBPF profiler sub-chart: also disabled by demo default, keep it off ──
